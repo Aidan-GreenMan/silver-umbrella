@@ -1,6 +1,7 @@
 package digital.greenman.silverumbrella
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,8 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
 import digital.greenman.silverumbrella.data.remote.OpenWeatherMapClient
+import digital.greenman.silverumbrella.data.repository.GeoRepositoryImpl
+import digital.greenman.silverumbrella.data.repository.WeatherRepositoryImpl
 import digital.greenman.silverumbrella.ui.theme.SilverUmbrellaTheme
 import kotlinx.coroutines.launch
+
+private const val TAG = "MainActivity"
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,16 +27,24 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val apiClient = OpenWeatherMapClient(BuildConfig.API_KEY)
+        val geoRepo = GeoRepositoryImpl(apiClient.geoApi)
+        val weatherRepo = WeatherRepositoryImpl(apiClient.weatherApi)
+
+        val errorHandler: (Throwable) -> Unit = { error ->
+            Log.e(TAG, "Error: $error")
+        }
 
         lifecycleScope.launch {
-            val cityData = apiClient.geoApi.getCities("Cape Town").body()?.firstOrNull()
-
-            println("City Data: $cityData")
-            if (cityData != null) {
-                val weatherData =
-                    apiClient.weatherApi.getCurrentWeather(cityData.lat, cityData.lon).body()
-                println("Weather Data: $weatherData")
-            }
+            geoRepo.getCities("Cape Town").onSuccess { cities ->
+                    val firstCity = cities.first()
+                    println("City Data: $firstCity")
+                    weatherRepo.getCurrentWeather(
+                        firstCity.coordinates.first,
+                        firstCity.coordinates.second
+                    ).onSuccess { weatherData ->
+                        println("Weather Data: $weatherData")
+                    }.onFailure(errorHandler)
+                }.onFailure(errorHandler)
         }
 
         setContent {
