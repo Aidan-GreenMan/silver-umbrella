@@ -21,8 +21,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-            // TODO: BuildConfig API key
-            val apiClient = OpenWeatherMapClient("")
+        val apiClient = OpenWeatherMapClient(BuildConfig.API_KEY)
 
         lifecycleScope.launch {
             val cityData = apiClient.geoApi.getCities("Cape Town").body()?.firstOrNull()

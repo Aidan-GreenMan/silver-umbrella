@@ -7,7 +7,15 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
+/**
+ * API Key is required.
+ */
 class OpenWeatherMapClient(private val apiKey: String?) {
+    init {
+        // Crash app in Debug mode if API key is null or blank
+        require(!apiKey.isNullOrBlank() && BuildConfig.DEBUG) { "API key cannot be blank, please ensure your `local.properties` file has an entry for `API_KEY`." }
+    }
+
     /**
      * Interceptor to add the API key as a query parameter to each request
      * if it isn't present.
@@ -15,9 +23,7 @@ class OpenWeatherMapClient(private val apiKey: String?) {
     private val apiKeyInjector = Interceptor { chain ->
         val originalRequest = chain.request()
 
-        if (apiKey.isNullOrBlank() ||
-            originalRequest.url.queryParameterNames.contains("appid")
-        ) {
+        if (originalRequest.url.queryParameterNames.contains("appid")) {
             chain.proceed(originalRequest)
         } else {
             val newUrl = originalRequest.url.newBuilder()
