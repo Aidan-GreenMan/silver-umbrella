@@ -1,77 +1,96 @@
 package digital.greenman.silverumbrella
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.lifecycleScope
-import digital.greenman.silverumbrella.data.remote.OpenWeatherMapClient
-import digital.greenman.silverumbrella.data.repository.GeoRepositoryImpl
-import digital.greenman.silverumbrella.data.repository.WeatherRepositoryImpl
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import digital.greenman.silverumbrella.ui.theme.SilverUmbrellaTheme
+import digital.greenman.silverumbrella.ui.weather.CitiesViewModel
+import digital.greenman.silverumbrella.ui.weather.CitiesViewModelFactory
+import digital.greenman.silverumbrella.ui.weather.WeatherScreen
+import digital.greenman.silverumbrella.ui.weather.WeatherViewModel
+import digital.greenman.silverumbrella.ui.weather.WeatherViewModelFactory
 import kotlinx.coroutines.launch
 
-private const val TAG = "MainActivity"
-
 class MainActivity : ComponentActivity() {
+    // ViewModels
+    private val weatherViewModel: WeatherViewModel by viewModels {
+        WeatherViewModelFactory((application as MainApplication).weatherRepository)
+    }
+
+    private val citiesViewModel: CitiesViewModel by viewModels {
+        CitiesViewModelFactory((application as MainApplication).geoRepository)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-
-        val apiClient = OpenWeatherMapClient(BuildConfig.API_KEY)
-        val geoRepo = GeoRepositoryImpl(apiClient.geoApi)
-        val weatherRepo = WeatherRepositoryImpl(apiClient.weatherApi)
-
-        val errorHandler: (Throwable) -> Unit = { error ->
-            Log.e(TAG, "Error: $error")
-        }
-
-        lifecycleScope.launch {
-            geoRepo.getCities("Cape Town").onSuccess { cities ->
-                    val firstCity = cities.first()
-                    println("City Data: $firstCity")
-                    weatherRepo.getCurrentWeather(
-                        firstCity.coordinates.first,
-                        firstCity.coordinates.second
-                    ).onSuccess { weatherData ->
-                        println("Weather Data: $weatherData")
-                    }.onFailure(errorHandler)
-                }.onFailure(errorHandler)
-        }
+        enableEdgeToEdge() // TODO: check system bars
 
         setContent {
+            val keyboardController = LocalSoftwareKeyboardController.current
+            val focusManager = LocalFocusManager.current
+
+            val snackBarHostState = remember { SnackbarHostState() }
+            val scope = rememberCoroutineScope()
+
+            val weatherState by weatherViewModel.weatherState.collectAsStateWithLifecycle()
+            val citiesState by citiesViewModel.citiesState.collectAsStateWithLifecycle()
+
             SilverUmbrellaTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    snackbarHost = {
+                        SnackbarHost(
+                            hostState = snackBarHostState,
+                            modifier = Modifier
+                                .windowInsetsPadding(WindowInsets.ime)
+                                // position snackbar above textfield
+                                .padding(bottom = 40.dp)
+                        )
+                    }) { innerPadding ->
+                    WeatherScreen(
+                        modifier = Modifier.padding(innerPadding),
+                        weatherState = weatherState,
+                        citiesState = citiesState,
+                        onSearch = {
+                            weatherViewModel.resetToIdle() // clear weather data
+                            citiesViewModel.getCities(it)
+                        },
+                        onCitySelected = {
+                            keyboardController?.hide()
+                            focusManager.clearFocus()
+
+                            citiesViewModel.resetToIdle()
+                            weatherViewModel.getCurrentWeather(
+                                lat = it.coordinates.first,
+                                lon = it.coordinates.second
+                            )
+                        },
+                        onError = {
+                            scope.launch {
+                                snackBarHostState.showSnackbar(it)
+                            }
+                        }
                     )
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SilverUmbrellaTheme {
-        Greeting("Android")
     }
 }

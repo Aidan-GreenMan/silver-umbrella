@@ -20,10 +20,13 @@ Retrofit and Okhttp
 - [x] Weather API
 - [x] Get Weather Data from API - https://openweathermap.org/current
 - [x] Domain with Repository
-- [ ] Loading state
-- [ ] Display Weather Data - Name, Temperature (Celsius), Condition and brief Description
-- [ ] Get City name from user
+- [x] Loading state
+- [x] Display Weather Data - Name, Temperature (Celsius), Condition and brief Description
+- [x] Get City name from user
 - [ ] Error handling
+  - [x] 401
+  - [x] 404
+  - [ ] offline
 - [ ] Unit Tests
 - [ ] UI Tests
 - [ ] Video

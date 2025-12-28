@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Silver Umbrella</string>
+    <string name="search_placeholder">Search City (at least 3 characters)</string>
+    <string name="city_label">City: %1$s</string>
+    <string name="condition_label">Condition: %1$s</string>
+    <string name="description_label">Description: %1$s</string>
+    <string name="temperature_c_label">Temperature: %1$s°C</string>
 </resources>
