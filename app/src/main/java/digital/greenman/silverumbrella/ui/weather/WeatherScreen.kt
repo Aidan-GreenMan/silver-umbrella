@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -56,16 +57,20 @@ fun WeatherScreen(
             .fillMaxSize(), bottomBar = {
             TextField(
                 keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Search,
-                    autoCorrectEnabled = false,
-                ),
-                keyboardActions = KeyboardActions(
-                    onSearch = {
-                        onSearch(cityQuery)
-                    }),
+                imeAction = ImeAction.Search,
+                autoCorrectEnabled = false,
+            ),
+                keyboardActions = KeyboardActions(onSearch = {
+                    onSearch(cityQuery)
+                }),
                 trailingIcon = {
                     Icon(
-                        imageVector = Icons.Default.Search, contentDescription = null
+                        modifier = Modifier.clickable {
+                            cityQuery = ""
+                            onSearch(cityQuery)
+                        },
+                        imageVector = if (cityQuery.isNotBlank()) Icons.Default.Clear else Icons.Default.Search,
+                        contentDescription = null,
                     )
                 },
                 singleLine = true,
@@ -171,15 +176,15 @@ fun WeatherScreenPreview() {
     SilverUmbrellaTheme {
         WeatherScreen(
             weatherState = WeatherState.Success(
-                WeatherDetails(
-                    "Preview City", "Preview Condition", "Preview Description", 25.0
-                )
-            ), citiesState = CitiesState.Success(
-                listOf(
-                    GeoDetails("Preview City, Country", Pair(0.0, 0.0)),
-                    GeoDetails("Preview City, Country1", Pair(1.0, 1.0)),
-                    GeoDetails("Preview City, Country2", Pair(2.0, 2.0))
-                )
-            ), onSearch = {}, onCitySelected = {}, onError = {})
+            WeatherDetails(
+                "Preview City", "Preview Condition", "Preview Description", 25.0
+            )
+        ), citiesState = CitiesState.Success(
+            listOf(
+                GeoDetails("Preview City, Country", Pair(0.0, 0.0)),
+                GeoDetails("Preview City, Country1", Pair(1.0, 1.0)),
+                GeoDetails("Preview City, Country2", Pair(2.0, 2.0))
+            )
+        ), onSearch = {}, onCitySelected = {}, onError = {})
     }
 }
