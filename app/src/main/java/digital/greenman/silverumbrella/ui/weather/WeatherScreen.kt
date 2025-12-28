@@ -149,6 +149,7 @@ fun WeatherScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
+                                        @Suppress("AssignedValueIsNeverRead")
                                         cityQuery = city.location
                                         onCitySelected(city)
                                     }
