@@ -21,5 +21,6 @@ fun WeatherResponse.toDomain(): WeatherDetails {
         condition,
         description,
         temperature = main.temp,
+        icons = weather.map { it.icon }
     )
 }

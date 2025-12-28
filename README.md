@@ -23,10 +23,12 @@ Retrofit and Okhttp
 - [x] Loading state
 - [x] Display Weather Data - Name, Temperature (Celsius), Condition and brief Description
 - [x] Get City name from user
+- [x] Icons
 - [ ] Error handling
   - [x] 401
   - [x] 404
   - [ ] offline
+  - [ ] empty results
 - [ ] Unit Tests
 - [ ] UI Tests
 - [ ] Video

@@ -5,5 +5,5 @@ data class WeatherDetails(
     val condition: String,
     val description: String,
     val temperature: Double,
-
+    val icons: List<String>
 )
