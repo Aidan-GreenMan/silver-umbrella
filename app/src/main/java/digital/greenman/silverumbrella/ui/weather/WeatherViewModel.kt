@@ -3,6 +3,7 @@ package digital.greenman.silverumbrella.ui.weather
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import digital.greenman.silverumbrella.domain.model.AppException
 import digital.greenman.silverumbrella.domain.model.WeatherDetails
 import digital.greenman.silverumbrella.domain.repository.WeatherRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +31,9 @@ class WeatherViewModel(private val repository: WeatherRepository) : ViewModel() 
                     _weatherState.value = WeatherState.Success(weather)
                 }
                 .onFailure { error ->
-                    _weatherState.value = WeatherState.Error("Error: ${error.message}")
+                    val appException =
+                        error as? AppException ?: AppException.UnknownException(cause = error)
+                    _weatherState.value = WeatherState.Error(appException)
                 }
         }
     }
@@ -40,7 +43,7 @@ sealed class WeatherState {
     object Idle : WeatherState()
     object Loading : WeatherState()
     data class Success(val weather: WeatherDetails?) : WeatherState()
-    data class Error(val message: String) : WeatherState()
+    data class Error(val exception: AppException) : WeatherState()
 }
 
 /**

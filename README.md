@@ -3,7 +3,9 @@ A Simple Weather App
 
 ## Run:
 
-- Add `API_KEY="…"` to your `local.properties` file
+- Add `API_KEY="…"` to your `local.properties` file. Please note Debug app will crash if API Key is
+ null or blank
+- Min Android 10
 
 ## Requirements:
 
@@ -24,11 +26,11 @@ Retrofit and Okhttp
 - [x] Display Weather Data - Name, Temperature (Celsius), Condition and brief Description
 - [x] Get City name from user
 - [x] Icons
-- [ ] Error handling
+- [x] Error handling
   - [x] 401
   - [x] 404
-  - [ ] offline
-  - [ ] empty results
+  - [x] offline
+  - [x] empty results
 - [ ] Unit Tests
 - [ ] UI Tests
 - [ ] Video

@@ -44,9 +44,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import digital.greenman.silverumbrella.R
+import digital.greenman.silverumbrella.domain.model.AppException
 import digital.greenman.silverumbrella.domain.model.GeoDetails
 import digital.greenman.silverumbrella.domain.model.WeatherDetails
 import digital.greenman.silverumbrella.ui.theme.SilverUmbrellaTheme
+
+@Composable
+fun getErrorMessage(error: AppException): String {
+    return when (error) {
+        is AppException.NetworkUnavailableException -> stringResource(R.string.error_network_unavailable)
+        is AppException.CityNotFoundException -> stringResource(R.string.error_city_not_found)
+        is AppException.ServerException -> stringResource(R.string.error_server)
+        is AppException.EmptyResultsException -> stringResource(R.string.error_empty_results)
+        is AppException.UnknownException -> stringResource(R.string.error_unknown)
+    }
+}
 
 @Composable
 fun WeatherScreen(
@@ -153,8 +165,9 @@ fun WeatherScreen(
                 }
 
                 is WeatherState.Error -> {
-                    LaunchedEffect(weatherState.message) {
-                        onError(weatherState.message)
+                    val message = getErrorMessage(weatherState.exception)
+                    LaunchedEffect(message) {
+                        onError(message)
                     }
                 }
 
@@ -190,8 +203,9 @@ fun WeatherScreen(
                 }
 
                 is CitiesState.Error -> {
-                    LaunchedEffect(citiesState.message) {
-                        onError(citiesState.message)
+                    val message = getErrorMessage(citiesState.exception)
+                    LaunchedEffect(message) {
+                        onError(message)
                     }
                 }
 

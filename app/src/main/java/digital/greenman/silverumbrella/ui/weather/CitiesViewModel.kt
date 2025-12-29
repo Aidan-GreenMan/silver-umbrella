@@ -3,6 +3,7 @@ package digital.greenman.silverumbrella.ui.weather
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import digital.greenman.silverumbrella.domain.model.AppException
 import digital.greenman.silverumbrella.domain.model.GeoDetails
 import digital.greenman.silverumbrella.domain.repository.GeoRepository
 import kotlinx.coroutines.Job
@@ -45,7 +46,9 @@ class CitiesViewModel(private val repository: GeoRepository) : ViewModel() {
                     _citiesState.value = CitiesState.Success(cities.distinct().take(5))
                 }
                 .onFailure { error ->
-                    _citiesState.value = CitiesState.Error("Error: ${error.message}")
+                    val appException =
+                        error as? AppException ?: AppException.UnknownException(cause = error)
+                    _citiesState.value = CitiesState.Error(appException)
                 }
         }
     }
@@ -55,7 +58,7 @@ sealed class CitiesState {
     object Idle : CitiesState()
     object Loading : CitiesState()
     data class Success(val cities: List<GeoDetails>) : CitiesState()
-    data class Error(val message: String) : CitiesState()
+    data class Error(val exception: AppException) : CitiesState()
 }
 
 /**

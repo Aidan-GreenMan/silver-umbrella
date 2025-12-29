@@ -3,11 +3,14 @@ package digital.greenman.silverumbrella.data.repository
 import android.util.Log
 import digital.greenman.silverumbrella.data.mapper.toDomain
 import digital.greenman.silverumbrella.data.remote.WeatherApi
+import digital.greenman.silverumbrella.domain.model.AppException
 import digital.greenman.silverumbrella.domain.model.WeatherDetails
 import digital.greenman.silverumbrella.domain.repository.WeatherRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.IOException
+import java.net.UnknownHostException
 
 private const val TAG = "WeatherRepositoryImpl"
 
@@ -24,16 +27,22 @@ class WeatherRepositoryImpl(private val weatherApi: WeatherApi) : WeatherReposit
                     val errorBody = response.errorBody()?.string()
                     Log.e(TAG, "Failed to fetch weather data: ${response.code()} - $errorBody")
 
-                    if (response.code() == 404) {
-                        Result.failure(Exception("Location not found."))
-                    } else {
-                        Result.failure(Exception("Failed to fetch weather data: ${response.message()}"))
+                    val exception = when (response.code()) {
+                        404 -> AppException.CityNotFoundException()
+                        in 500..599 -> AppException.ServerException()
+                        else -> AppException.UnknownException(message = response.message())
                     }
+                    Result.failure(exception)
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
                 Log.e(TAG, "Exception fetching weather data", e)
-                Result.failure(e)
+                val exception = when (e) {
+                    is UnknownHostException -> AppException.NetworkUnavailableException()
+                    is IOException -> AppException.NetworkUnavailableException()
+                    else -> AppException.UnknownException(cause = e)
+                }
+                Result.failure(exception)
             }
         }
     }
