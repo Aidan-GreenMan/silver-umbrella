@@ -1,6 +1,8 @@
 # silver-umbrella
 A Simple Weather App
 
+The `temperature` Double is rounded to Integer to display in Celsius
+
 ## Run:
 
 - Add `API_KEY="…"` to your `local.properties` file. Please note Debug app will crash if API Key is

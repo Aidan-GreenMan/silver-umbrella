@@ -253,7 +253,7 @@ fun WeatherScreenPreview() {
                     "Preview City",
                     "Preview Condition",
                     "Preview Description",
-                    25.0,
+                    25,
                     listOf("50d", "13d")
                 )
             ), citiesState = CitiesState.Success(
