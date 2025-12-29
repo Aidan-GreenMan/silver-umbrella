@@ -51,6 +51,12 @@ android {
         compose = true
         buildConfig = true
     }
+    
+    testOptions {
+        unitTests.all {
+            it.useJUnitPlatform()
+        }
+    }
 }
 
 dependencies {
@@ -67,7 +73,11 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.coil.compose)
-    testImplementation(libs.junit)
+    
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
