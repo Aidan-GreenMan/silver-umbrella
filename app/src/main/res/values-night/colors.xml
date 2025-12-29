@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="weather_gradient_start">#FF0D1B2A</color>
+    <color name="weather_gradient_end">#FF1B263B</color>
+
+    <color name="weather_card_bg">#FF1E2A38</color>
+    <color name="weather_content">#FFFFFFFF</color>
+    <color name="weather_description">#FFCCCCCC</color>
+</resources>

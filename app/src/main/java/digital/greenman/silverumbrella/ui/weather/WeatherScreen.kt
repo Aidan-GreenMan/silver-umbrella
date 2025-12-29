@@ -1,9 +1,9 @@
 package digital.greenman.silverumbrella.ui.weather
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,12 +15,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -36,8 +37,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
@@ -70,6 +71,15 @@ fun WeatherScreen(
     modifier: Modifier = Modifier
 ) {
     var cityQuery by remember { mutableStateOf("") }
+
+    val gradientColors = listOf(
+        colorResource(R.color.weather_gradient_start),
+        colorResource(R.color.weather_gradient_end)
+    )
+
+    val cardBackgroundColor = colorResource(R.color.weather_card_bg)
+    val contentColor = colorResource(R.color.weather_content)
+    val descriptionColor = colorResource(R.color.weather_description)
 
     Scaffold(
         modifier = modifier
@@ -109,6 +119,11 @@ fun WeatherScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = gradientColors
+                    )
+                )
                 .padding(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -121,43 +136,53 @@ fun WeatherScreen(
             when (weatherState) {
                 is WeatherState.Success -> {
                     if (weatherState.weather != null) {
-                        Text(
-                            text = stringResource(R.string.city_label, weatherState.weather.city),
-                            style = typography.headlineSmall
-                        )
-                        Text(
-                            text = stringResource(
-                                R.string.condition_label, weatherState.weather.condition
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = cardBackgroundColor,
+                                contentColor = contentColor
                             )
-                        )
-                        Text(
-                            text = stringResource(
-                                R.string.description_label, weatherState.weather.description
-                            )
-                        )
-                        Text(
-                            text = stringResource(
-                                R.string.temperature_c_label, weatherState.weather.temperature
-                            )
-                        )
-                        Row {
-                            weatherState.weather.icons.forEach {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier
-                                        .padding(8.dp)
-                                        .size(64.dp)
-                                        .clip(CircleShape)
-                                        .background(Color.LightGray)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(24.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = weatherState.weather.city,
+                                    style = typography.headlineMedium
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "${weatherState.weather.temperature}°C",
+                                    style = typography.displayLarge
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = weatherState.weather.condition,
+                                    style = typography.titleMedium
+                                )
+                                Text(
+                                    text = weatherState.weather.description,
+                                    style = typography.bodyMedium,
+                                    color = descriptionColor
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    AsyncImage(
-                                        model = "https://openweathermap.org/img/wn/$it@2x.png",
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .size(48.dp)
-                                            .clip(CircleShape)
-                                            .background(Color.White)
-                                    )
+                                    weatherState.weather.icons.forEach { iconCode ->
+                                        AsyncImage(
+                                            model = "https://openweathermap.org/img/wn/$iconCode@2x.png",
+                                            contentDescription = null,
+                                            modifier = Modifier.size(80.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -189,7 +214,9 @@ fun WeatherScreen(
                             key = { city -> "${city.location} - ${city.coordinates.first}, ${city.coordinates.second}" }) { city ->
                             Text(
                                 text = city.location,
+                                color = contentColor,
                                 modifier = Modifier
+                                    .background(cardBackgroundColor)
                                     .fillMaxWidth()
                                     .clickable {
                                         @Suppress("AssignedValueIsNeverRead")
@@ -215,7 +242,8 @@ fun WeatherScreen(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Light Mode")
+@Preview(showBackground = true, name = "Dark Mode", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun WeatherScreenPreview() {
     SilverUmbrellaTheme {
