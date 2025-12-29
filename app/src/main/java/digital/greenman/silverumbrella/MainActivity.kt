@@ -69,9 +69,9 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding),
                         weatherState = weatherState,
                         citiesState = citiesState,
-                        onSearch = {
+                        onSearch = { query, debounce ->
                             weatherViewModel.resetToIdle() // clear weather data
-                            citiesViewModel.getCities(it)
+                            citiesViewModel.getCities(query, debounce)
                         },
                         onCitySelected = {
                             keyboardController?.hide()

@@ -64,7 +64,7 @@ fun getErrorMessage(error: AppException): String {
 fun WeatherScreen(
     citiesState: CitiesState,
     weatherState: WeatherState,
-    onSearch: (String) -> Unit,
+    onSearch: (query: String, debounce: Boolean) -> Unit,
     onCitySelected: (GeoDetails) -> Unit,
     onError: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -81,13 +81,13 @@ fun WeatherScreen(
                     autoCorrectEnabled = false,
                 ),
                 keyboardActions = KeyboardActions(onSearch = {
-                    onSearch(cityQuery)
+                    onSearch(cityQuery, false)
                 }),
                 trailingIcon = {
                     Icon(
                         modifier = Modifier.clickable {
                             cityQuery = ""
-                            onSearch(cityQuery)
+                            onSearch(cityQuery, false)
                         },
                         imageVector = if (cityQuery.isNotBlank()) Icons.Default.Clear else Icons.Default.Search,
                         contentDescription = null,
@@ -97,7 +97,7 @@ fun WeatherScreen(
                 value = cityQuery,
                 onValueChange = {
                     cityQuery = it
-                    onSearch(cityQuery)
+                    onSearch(cityQuery, true)
                 },
                 label = { Text(stringResource(R.string.search_placeholder)) },
                 modifier = Modifier
@@ -234,6 +234,6 @@ fun WeatherScreenPreview() {
                     GeoDetails("Preview City, Country1", Pair(1.0, 1.0)),
                     GeoDetails("Preview City, Country2", Pair(2.0, 2.0))
                 )
-            ), onSearch = {}, onCitySelected = {}, onError = {})
+            ), onSearch = { _, _ -> }, onCitySelected = {}, onError = {})
     }
 }

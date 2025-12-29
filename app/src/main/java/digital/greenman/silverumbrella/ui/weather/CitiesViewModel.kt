@@ -25,8 +25,17 @@ class CitiesViewModel(private val repository: GeoRepository) : ViewModel() {
         searchJob?.cancel()
     }
 
+    /**
+     * Fetches a list of cities matching the provided search query.
+     *
+     * This function updates [citiesState] with the result. If [debounce] is true,
+     * the search is delayed by 500ms to avoid excessive network requests while typing.
+     *
+     * @param query The text string to search for. Must be at least 3 characters long.
+     * @param debounce If true, adds a 500ms delay before executing the search.
+     */
+    fun getCities(query: String, debounce: Boolean) {
 
-    fun getCities(query: String) {
         searchJob?.cancel()
 
         if (query.isBlank() || query.length < 3) {
@@ -35,7 +44,7 @@ class CitiesViewModel(private val repository: GeoRepository) : ViewModel() {
         }
 
         searchJob = viewModelScope.launch {
-            delay(500) // Debounce
+            if (debounce) delay(500) // Debounce
             _citiesState.value = CitiesState.Loading
 
             val result = repository.getCities(query)
