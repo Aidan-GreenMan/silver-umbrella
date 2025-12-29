@@ -34,6 +34,6 @@ Retrofit and Okhttp
   - [x] offline
   - [x] empty results
 - [x] App Icon & Theming
-- [ ] Unit Tests
+- [x] Unit Tests
 - [ ] UI Tests
 - [ ] Video
