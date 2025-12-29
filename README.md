@@ -3,6 +3,12 @@ A Simple Weather App
 
 The `temperature` Double is rounded to Integer to display in Celsius
 
+
+
+https://github.com/user-attachments/assets/44b3a30e-caaf-4d20-a6ce-146eb44c0bf9
+
+
+
 ## Run:
 
 - Add `API_KEY="…"` to your `local.properties` file. Please note Debug app will crash if API Key is
@@ -36,4 +42,4 @@ Retrofit and Okhttp
 - [x] App Icon & Theming
 - [x] Unit Tests
 - [x] UI Tests
-- [ ] Video
+- [x] Video
